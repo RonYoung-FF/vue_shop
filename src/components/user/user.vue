@@ -11,12 +11,12 @@
             <!-- 搜索框组件 -->
             <el-row :gutter="20">
                 <el-col :span="7">
-                    <el-input placeholder="请输入内容"  :clearable="true" v-model="queryInfo.query" @clear="getUserInfo">
+                    <el-input placeholder="请输入用户名进行查询"  :clearable="true" v-model="queryInfo.query" @clear="getUserInfo">
                         <el-button slot="append" icon="el-icon-search" @click="getUserInfo"></el-button>
                     </el-input>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" @click="dialogVisible = true">添加用户</el-button>
+                    <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
                 </el-col>
             </el-row>
             <!-- 表格组件 -->
@@ -39,7 +39,7 @@
                         <el-button type="primary" size="mini" icon="el-icon-edit" @click="getUser (scope.row)"></el-button>
                         <el-button type="danger" size="mini" icon="el-icon-delete" @click="deleteUser (scope.row)"></el-button>
                         <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
-                            <el-button type="warning" size="mini" icon="el-icon-setting"></el-button>
+                            <el-button type="warning" size="mini" icon="el-icon-setting" @click="deployRole (scope.row)"></el-button>
                         </el-tooltip>
                     </template>
                 </el-table-column>
@@ -88,8 +88,22 @@
             </el-form>
             <!-- 按钮区域 -->
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button @click="editdialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="editUser">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 分配角色对话框 -->
+        <el-dialog title="添加用户" :visible.sync="deployDialogVisible" width="30%" @close="resetDeployRole">
+            <p>当前的用户是：{{currentUser.username}}</p>
+            <span style="margin-right: 10px;">当前用户角色是:</span>
+            <el-select v-model="selectedRoleId" :placeholder="currentUser.role_name">
+            <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id">
+                </el-option>
+              </el-select>
+            <!-- 按钮区域 -->
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="deployDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="submitRole">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -170,7 +184,15 @@
                     mobile: [
                         { validator: validateTel, trigger: 'blur' }
                     ]
-                }
+                },
+                // 分配角色对话框状态
+                deployDialogVisible: false,
+                // 所有角色列表
+                roleList: [],
+                // 当前的用户信息
+                currentUser: '',
+                // 当前选中的ID
+                selectedRoleId: ''
             }
         },
         created () {
@@ -267,7 +289,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(async () => {
-                    const { data: result } = await this.$http.delete(`users/${userInfo.id}`, { id: userInfo.id })
+                    const { data: result } = await this.$http.delete(`users/${userInfo.id}`)
                     if (result.meta.status !== 200) {
                        return this.$message.error('删除失败，请重试删除')
                     }
@@ -283,6 +305,31 @@
                         message: '已取消删除'
                     })
                 })
+            },
+            // 分配角色函数
+            async deployRole (userInfo) {
+                const { data: result } = await this.$http.get('roles')
+                if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
+                this.roleList = result.data
+                this.currentUser = userInfo
+                this.deployDialogVisible = true
+            },
+             // 提交已选定权限函数
+            async submitRole () {
+            if (!this.selectedRoleId) {
+                return this.$message('请选择新角色')
+            }
+            console.log(this.selectedRoleId)
+            const { data: result } = await this.$http.put(`users/${this.currentUser.id}/role`, { rid: this.selectedRoleId })
+            if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
+            this.$message.success('角色修改提交成功')
+            this.getUserInfo()
+            this.deployDialogVisible = false
+            },
+            // 分配角色对话框关闭后清空
+            resetDeployRole () {
+                this.selectedRoleId = ''
+                this.currentUser = ''
             }
         }
     }
