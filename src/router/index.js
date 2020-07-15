@@ -6,6 +6,7 @@ import Welcome from '../components/welcome.vue'
 import User from '../components/user/user.vue'
 import Rights from '../components/authority/rights.vue'
 import Role from '../components/authority/role.vue'
+import GoodCate from '../components/goodsmangement/good_category'
 
 Vue.use(VueRouter)
 
@@ -26,7 +27,8 @@ const routes = [
       { path: '/welcome', component: Welcome },
       { path: '/users', component: User },
       { path: '/rights', component: Rights },
-      { path: '/roles', component: Role }
+      { path: '/roles', component: Role },
+      { path: '/categories', component: GoodCate }
     ]
   }
 ]

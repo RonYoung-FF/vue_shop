@@ -17,3 +17,6 @@ body .el-table th.gutter{
 .el-tag{
     margin:10px;
 }
+.el-cascader-menu{
+    height:300px;
+}
