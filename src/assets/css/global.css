@@ -20,3 +20,9 @@ body .el-table th.gutter{
 .el-cascader-menu{
     height:300px;
 }
+.el-steps{
+    margin:20px;
+}
+.ql-editor{
+    min-height: 200px;
+}
