@@ -23,6 +23,18 @@ axios.interceptors.request.use(config => {
   config.headers.Authorization = window.sessionStorage.getItem('token')
   return config
 })
+// 全局过滤器把毫秒转化成公元
+Vue.filter('dateFormat', function (date, form) {
+  date = parseInt(date * 1000)
+  const msDate = new Date(date)
+  const date1 = msDate.toLocaleDateString().replace(/\//g, '-')
+  if (form === 'yyyy-MM-dd') {
+   return (date1)
+  } else if (form === 'yyyy-MM-dd hh:mm:ss') {
+   var date2 = date1 + ' ' + msDate.toTimeString().substr(0, 8)
+   return date2
+  }
+})
 Vue.config.productionTip = false
 // 全局注册树形表格组件
 Vue.component('tree-table', TreeTable)
